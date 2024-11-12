@@ -33,6 +33,8 @@ import com.jihaddmz.tasksync.feature_global.component.TextTitleLarge
 import com.jihaddmz.tasksync.feature_global.component.TextTitleMedium
 import com.jihaddmz.tasksync.feature_global.component.TextTitleSmall
 import com.jihaddmz.tasksync.feature_global.helper.HelperSharedPreference
+import com.jihaddmz.tasksync.feature_global.model.DtoCategory
+import com.jihaddmz.tasksync.feature_global.model.DtoTask
 import com.jihaddmz.tasksync.feature_global.viewmodel.ViewModelMain
 import com.jihaddmz.tasksync.feature_task.component.CardCategory
 import com.jihaddmz.tasksync.feature_task.component.CardsHome
@@ -42,6 +44,7 @@ fun ScreenHome(
     modifier: Modifier = Modifier,
     navController: NavController,
     viewModelMain: ViewModelMain = hiltViewModel(),
+    onItemClick: (List<DtoCategory.Task?>) -> Unit,
     onViewAllClick: () -> Unit,
     onProfileClick: () -> Unit
 ) {
@@ -112,7 +115,9 @@ fun ScreenHome(
                         modifier = Modifier.padding(
                             top = 10.dp,
                             start = 8.dp
-                        ),
+                        ).clickable {
+                            onItemClick(dtoCategory.tasks ?: listOf())
+                        },
                         categoryTitle = dtoCategory.title!!,
                         totalTasks = dtoCategory.tasks!!.size,
                         doneTasks = dtoCategory.tasks.filter { it!!.done == true }.size,

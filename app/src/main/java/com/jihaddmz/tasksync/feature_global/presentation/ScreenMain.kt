@@ -44,9 +44,11 @@ import com.jihaddmz.tasksync.feature_global.model.TypeBottomSheet
 import com.jihaddmz.tasksync.feature_task.presentation.BottomSheetAddTask
 import com.jihaddmz.tasksync.feature_task.presentation.BottomSheetCategories
 import com.jihaddmz.tasksync.feature_task.presentation.BottomSheetTaskActions
+import com.jihaddmz.tasksync.feature_task.presentation.BottomSheetTasks
 import com.jihaddmz.tasksync.feature_task.presentation.ScreenHome
 import com.jihaddmz.tasksync.feature_task.presentation.ScreenTasks
 import com.jihaddmz.tasksync.ui.theme.blue
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,7 +67,6 @@ fun ScreenMain(
         mutableStateOf(TypeBottomSheet.None)
     }
     val scope = rememberCoroutineScope()
-
 
 
     val alpha = animateFloatAsState(targetValue = if (selectedScreen.intValue == 1) 1.0f else 0.0f)
@@ -97,6 +98,9 @@ fun ScreenMain(
                     onViewAllClick = {
                         typeBottomSheet.value = TypeBottomSheet.Categories
 
+                    },
+                    onItemClick = { tasks ->
+                        typeBottomSheet.value = TypeBottomSheet.ViewTasksByCategory(tasks)
                     }
                 ) {
                     selectedScreen.intValue = 3
@@ -210,6 +214,20 @@ fun ScreenMain(
                             bottomSheetState.hide()
                         }
                         typeBottomSheet.value = TypeBottomSheet.None
+                    }
+                } else if (typeBottomSheet.value is TypeBottomSheet.ViewTasksByCategory) {
+                    val typeBottomSheetViewTasks =
+                        (typeBottomSheet.value as TypeBottomSheet.ViewTasksByCategory)
+                    BottomSheetTasks(listOfTasks = typeBottomSheetViewTasks.tasks) { id, task ->
+
+                        scope.launch {
+                            bottomSheetState.hide()
+                            typeBottomSheet.value = TypeBottomSheet.None
+
+                            delay(500)
+                            typeBottomSheet.value = TypeBottomSheet.TaskActions(id, task)
+                        }
+
                     }
                 }
             })
