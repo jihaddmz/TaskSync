@@ -26,11 +26,6 @@ fun BottomSheetAddTask(
     onAddClick: () -> Unit,
 ) {
 
-    LaunchedEffect(key1 = viewModelMain.stateAddTask.value) {
-        if (viewModelMain.stateAddTask.value != null)
-            onAddClick()
-    }
-
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -63,7 +58,7 @@ fun BottomSheetAddTask(
                 .fillMaxWidth()
                 .padding(top = 60.dp)
         ) {
-            viewModelMain.addTask()
+            onAddClick()
         }
     }
 }

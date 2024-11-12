@@ -81,16 +81,14 @@ fun ScreenHome(
                 maxLines = 2
             )
 
-            ButtonsChooser(
-                modifier = Modifier.padding(top = 20.dp),
-                listOf("Overview", "Favorites")
-            ) {
+//            ButtonsChooser(
+//                modifier = Modifier.padding(top = 20.dp),
+//                listOf("Overview", "Favorites")
+//            ) {
+//
+//            }
 
-            }
-
-            CardsHome(modifier = Modifier.padding(top = 5.dp), percentage = viewModelMain.calculatePercentage()) {
-
-            }
+            CardsHome(modifier = Modifier.padding(top = 5.dp), percentage = viewModelMain.calculatePercentage())
 
             Row(
                 modifier = Modifier.fillMaxWidth(),

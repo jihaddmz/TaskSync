@@ -27,7 +27,7 @@ import com.jihaddmz.tasksync.ui.theme.lightBlack
 import com.jihaddmz.tasksync.ui.theme.trackNoProgressColor
 
 @Composable
-fun CardsHome(modifier: Modifier = Modifier, percentage: Int, onClick: () -> Unit) {
+fun CardsHome(modifier: Modifier = Modifier, percentage: Int) {
     Box(
         modifier = Modifier
             .fillMaxWidth(), contentAlignment = Alignment.Center
@@ -38,10 +38,7 @@ fun CardsHome(modifier: Modifier = Modifier, percentage: Int, onClick: () -> Uni
                     .width(((LocalConfiguration.current.screenWidthDp - 100) + i * 20).dp)
                     .height(200.dp)
                     .offset(0.dp, -(i * 5 + (i * 2)).dp)
-                    .padding(vertical = 30.dp)
-                    .clickable {
-                        onClick()
-                    },
+                    .padding(vertical = 30.dp),
                 colors = CardDefaults.cardColors(containerColor = lightBlack),
                 elevation = CardDefaults.cardElevation(defaultElevation = (i * 5 + i).dp)
             ) {

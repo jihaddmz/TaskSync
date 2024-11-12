@@ -11,6 +11,7 @@ import com.jihaddmz.tasksync.feature_global.usecase.UseCaseFetchTasks
 import com.jihaddmz.tasksync.feature_task.model.ReqAddTask
 import com.jihaddmz.tasksync.feature_task.model.ReqUpdateTaskIsDone
 import com.jihaddmz.tasksync.feature_task.usecase.UseCaseAddTask
+import com.jihaddmz.tasksync.feature_task.usecase.UseCaseDeleteTask
 import com.jihaddmz.tasksync.feature_task.usecase.UseCaseUpdateTaskIsDone
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -20,7 +21,8 @@ class ViewModelMain @Inject constructor(
     private val useCaseFetchCategories: UseCaseFetchCategories,
     private val useCaseFetchTasks: UseCaseFetchTasks,
     private val useCaseAddTask: UseCaseAddTask,
-    private val useCaseUpdateTaskIsDone: UseCaseUpdateTaskIsDone
+    private val useCaseUpdateTaskIsDone: UseCaseUpdateTaskIsDone,
+    private val useCaseDeleteTask: UseCaseDeleteTask
 ) : BaseViewModel() {
 
     val stateListOfCategories: MutableState<List<DtoCategory>?> = mutableStateOf(
@@ -29,6 +31,7 @@ class ViewModelMain @Inject constructor(
     val stateListOfTasks: MutableState<List<DtoTask>?> = mutableStateOf(null)
     val stateAddTask: MutableState<DtoTask?> = mutableStateOf(null)
     val stateUpdateTaskIsDone: MutableState<DtoTask?> = mutableStateOf(null)
+    val stateDeleteTask: MutableState<DtoTask?> = mutableStateOf(null)
 
 
     val taskName = mutableStateOf("")
@@ -43,6 +46,10 @@ class ViewModelMain @Inject constructor(
             ) ?: ""
         })
 
+    fun deleteTask(id: Int) {
+        executeUseCase(useCaseDeleteTask, id, stateDeleteTask)
+    }
+
     fun updateTaskDone(id: Int, isDone: Boolean) {
         executeUseCase(useCaseUpdateTaskIsDone, ReqUpdateTaskIsDone(id, isDone), stateUpdateTaskIsDone)
     }
@@ -53,6 +60,9 @@ class ViewModelMain @Inject constructor(
             ReqAddTask(category.value, "", priority.value, taskName.value, username.value),
             stateAddTask
         )
+        category.value = ""
+        taskName.value = ""
+        priority.value = "Low"
     }
 
     fun fetchCategories() {
@@ -75,7 +85,7 @@ class ViewModelMain @Inject constructor(
         val totalTasks = stateListOfCategories.value?.flatMap { it.tasks ?: listOf() }
         val doneTasks = totalTasks?.filter { it?.done == true }
 
-        if (totalTasks == null) {
+        if (totalTasks.isNullOrEmpty()) {
             return 0
         } else {
             return doneTasks!!.size * 100 / totalTasks.size

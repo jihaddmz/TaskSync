@@ -58,22 +58,30 @@ fun ScreenMain(
     val selectedScreen = remember {
         mutableIntStateOf(1)
     }
-
     val bottomSheetState = rememberStandardBottomSheetState(
         skipHiddenState = false
     )
-
     val typeBottomSheet: MutableState<TypeBottomSheet> = remember {
         mutableStateOf(TypeBottomSheet.None)
     }
     val scope = rememberCoroutineScope()
 
+
+
     val alpha = animateFloatAsState(targetValue = if (selectedScreen.intValue == 1) 1.0f else 0.0f)
     val alpha1 = animateFloatAsState(targetValue = if (selectedScreen.intValue == 2) 1.0f else 0.0f)
     val alpha2 = animateFloatAsState(targetValue = if (selectedScreen.intValue == 3) 1.0f else 0.0f)
 
-    LaunchedEffect(key1 = viewModelMain.stateUpdateTaskIsDone.value) {
-        viewModelMain.fetchTasks()
+    LaunchedEffect(
+        key1 = viewModelMain.stateUpdateTaskIsDone.value,
+        key2 = viewModelMain.stateDeleteTask.value,
+        key3 = viewModelMain.stateAddTask.value
+    ) {
+        if (selectedScreen.intValue == 1)
+            viewModelMain.fetchCategories()
+        else if (selectedScreen.intValue == 2) {
+            viewModelMain.fetchTasks()
+        }
     }
 
     Column(modifier = modifier.fillMaxSize()) {
@@ -102,7 +110,7 @@ fun ScreenMain(
                         selectedScreen.intValue = 3
 
                     },
-                    onItemClick = { id, task->
+                    onItemClick = { id, task ->
                         typeBottomSheet.value = TypeBottomSheet.TaskActions(id, task)
                     }
                 ) {
@@ -131,17 +139,15 @@ fun ScreenMain(
                     }
                 } else if (typeBottomSheet.value is TypeBottomSheet.Add) {
                     BottomSheetAddTask {
-                        scope.launch {
-                            bottomSheetState.hide()
-                        }
-                        typeBottomSheet.value = TypeBottomSheet.None
 
-                        if (selectedScreen.intValue == 1)
-                            viewModelMain.fetchCategories()
-                        else if (selectedScreen.intValue == 2) {
-                            viewModelMain.fetchTasks()
+                        scope.launch {
+                            viewModelMain.addTask()
+                            bottomSheetState.hide()
+                            typeBottomSheet.value = TypeBottomSheet.None
                         }
+
                     }
+
                 } else if (typeBottomSheet.value is TypeBottomSheet.Logout) {
                     BottomSheetConfirmation(
                         title = "Logout",
@@ -185,12 +191,20 @@ fun ScreenMain(
 
                     }
                 } else if (typeBottomSheet.value is TypeBottomSheet.TaskActions) {
-                    val typeActionsBottomSheet = (typeBottomSheet.value as TypeBottomSheet.TaskActions)
+                    val typeActionsBottomSheet =
+                        (typeBottomSheet.value as TypeBottomSheet.TaskActions)
                     BottomSheetTaskActions(
-                        id = (typeBottomSheet.value as TypeBottomSheet.TaskActions).id,
-                        text = (typeBottomSheet.value as TypeBottomSheet.TaskActions).text,
-                        onDelete = {}) {
-                        viewModelMain.updateTaskDone(typeActionsBottomSheet.id, true)
+                        id = typeActionsBottomSheet.id,
+                        text = typeActionsBottomSheet.text,
+                        onDelete = { id ->
+                            viewModelMain.deleteTask(id)
+
+                            scope.launch {
+                                bottomSheetState.hide()
+                            }
+                            typeBottomSheet.value = TypeBottomSheet.None
+                        }) { id ->
+                        viewModelMain.updateTaskDone(id, true)
 
                         scope.launch {
                             bottomSheetState.hide()
